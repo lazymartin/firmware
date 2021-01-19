@@ -1,0 +1,43 @@
+#=================================================
+# Description: Build OpenWrt using GitHub Actions
+# Lisence: GPL-3.0
+# Author: lazymartin
+#=================================================
+
+name: Compile Web Server
+
+on:
+  schedule:
+    #- cron: '30 21 * * 2'
+  push:
+    paths: 
+      #- '.github/workflows/compile.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@master
+
+    - name: Initialization environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo apt-get update
+        
+    - name: Assemble Artifact
+      run: |
+        mkdir -p ./artifact
+        cp ~/aria2-1.35.0/src/aria2c ./artifact/
+        
+    - name: Upload binaries to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ./artifact/*
+        tag: "Last_release"
+        overwrite: true
+        file_glob: true
+        body: "RedMi_ac2100 padavan firmware latest release!"
